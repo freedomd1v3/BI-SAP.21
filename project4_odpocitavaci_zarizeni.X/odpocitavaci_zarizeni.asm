@@ -1,19 +1,17 @@
-.dseg	; Prepnuti do pameti dat
+.dseg
 .org 0x100
 
 flag: .byte 1
 
 .cseg
-.org 0x1000 ; Nacitani "printlib.inc" mimo dseg a cseg
+.org 0x1000
     .include "printlib.inc"
 
-; Zacatek programu - po resetu
 .org 0
     jmp start
 .org 0x16
-    jmp interrupt   ; interrupt nesmi obsahovat zadny call
+    jmp interrupt   ; interrupt can't contain any calls
 
-; Zacatek programu - hlavni program
 .org 0x100
 start:
     call init_disp
@@ -22,11 +20,11 @@ start:
     
     call init_int
     ldi r16, 0
-    sts flag, r16   ; Inicializace pametoveho mista - flag je ted pointer
+    sts flag, r16   ; Initializing space - flag is a pointer now
     
 set_timer:
     call lcd_clear
-    ; r20 = minuty, r21 = sekundy
+    ; r20 = minutes, r21 = seconds
     clr r20
     clr r21
     
@@ -59,19 +57,18 @@ set_timer:
 
 main_loop:
     lds r19, flag
-    cpi r19, 0	; Otestovani flagu
-    breq main_loop  ; Pokud neni flag -> navrat na zacatek
+    cpi r19, 0	; Testing flag
+    breq main_loop  ; If flag isn't set - return to the beginning
     
-    ; Je flag
-    ldi r19, 0	; Vycisteni flagu
+    ; Flag IS set
+    ldi r19, 0	; Clearing it
     sts flag, r19
     
-    ; Akce provedena 1x za sekundu
+    ; Is done once per every second
     cpi r20, 0
     brne dont_finish_break_check
     cpi r21, 0
     breq finished
-    ;breq finish_iteration  ; TODO: This!
     
     dont_finish_break_check:
     dec r21
@@ -153,7 +150,7 @@ finished:
     
     wait_for_last_select:
 	call get_button
-	; Tady by vzdy melo byt male cekani
+	; Add a bit of waiting between button tappings
 	ldi r17, 255
 	last_select_small_cooldown2: ldi r16, 255
 	last_select_small_cooldown:  dec r16
@@ -170,10 +167,10 @@ finished:
 init_buttons:
     push r16
     lds r16, ADCSRA
-    ori r16, (1<<ADEN)
+    ori r16, (1 << ADEN)
     sts ADCSRA, r16
 
-    ldi r16, (0b01<<REFS0) | (1<<ADLAR); 4
+    ldi r16, (0b01 << REFS0) | (1 << ADLAR); 4
     sts ADMUX, r16
 
     pop r16
@@ -183,7 +180,7 @@ init_buttons:
 fetch_buttons:
     push r16
     lds r16, ADCSRA
-    ori r16, (1 << ADSC)    ; Nastaveni bitu ADSC na adrese ADCSRA na log. 1
+    ori r16, (1 << ADSC)    ; Setting ADSC bit on address ADCSRA to log. 1
     sts ADCSRA, r16
 
     pop r16
@@ -208,7 +205,6 @@ get_minutes:
     clr r20
     get_minutes_until_select:
 	call get_button
-	; Tady by vzdy melo byt male cekani
 	ldi r17, 255
 	get_minutes_small_cooldown2: ldi r16, 255
 	get_minutes_small_cooldown:  dec r16
@@ -229,7 +225,6 @@ get_minutes:
     continue_decrement_r20:
 	call print_minutes
 	
-	; Cekani mezi stisknutimi
 	ldi r18, 15
 	get_minutes_wait3: ldi r17, 255
 	get_minutes_wait2: ldi r16, 255
@@ -289,7 +284,6 @@ get_seconds:
     clr r21
     get_seconds_until_select:
 	call get_button
-	; Tady by vzdy melo byt male cekani
 	ldi r17, 255
 	get_seconds_small_cooldown2: ldi r16, 255
 	get_seconds_small_cooldown:  dec r16
@@ -310,7 +304,6 @@ get_seconds:
     continue_decrement_r21:
 	call print_seconds
 	
-	; Cekani mezi stisknutimi
 	ldi r18, 15
 	get_seconds_wait3: ldi r17, 255
 	get_seconds_wait2: ldi r16, 255
@@ -406,57 +399,57 @@ do_beep_with_zeros:
 
 init_int:
     push r16
-    cli	; Globalni zakazani preruseni
+    cli
 
-    ; Vycisteni aktualni hodnoty citace TCNT1 (aby prvni sekunda nezacala nekde "od pulky")
+    ; Clearing value of counter TCNT1 (so that first second doesn't starts "somewhere in the middle")
     clr r16
     sts TCNT1H, r16
     sts TCNT1L, r16
 
-    ; Povoleni preruseni ve chvili, kdy citac TCNT1 dosahne hodnoty OCR1A
+    ; Allowing interrupt at the moment, when counter TCNT1 gets value OCR1A
     ldi r16, (1 << OCIE1A)
     sts TIMSK1, r16
 
-    ; Nastaveni cisteni citace TCNT1 ve chvili, kdy dosahne hodnoty OCR1A (1 << WGM12)
-    ; Nastaveni preddelicky na 1024 (0b101 << CS10 - bity CS12, CS11 a CS10 jsou za sebou)
+    ; Setting counter TCN1 at the moment, when got value OCR1A (1 << WGM12)
+    ; Setting pre-divider to 1024 (0b101 << CS10 - bits CS12, CS11 a CS10 are after each other)
     ldi r16, (1<<WGM12) | (0b101<<CS10)
     sts TCCR1B, r16
 
-    ; Nastaveni OCR1A, tj. vysledne frekvence preruseni
-    ; Frekvence preruseni = frekvence cipu 328P / preddelicka / (OCR1A+1)
-    ; Frekvence cipu 328P je 16 MHz, tj. 16000000
-    ; Preddelicka je nastavena na 1024
-    ; Frekvenci preruseni chceme na 1 Hz
-    ; OCR1A = (frekvence cipu 328P / preddelicka / frekvence preruseni) - 1
+    ; Setting OCR1a (frequency of interrupts)
+    ; Frequency of interrupts = frequency of 328P / pre-divider / (OCR1A + 1)
+    ; Frequency of chip 328P = 16 MHz = 16000000 Hz
+    ; Pre-divider is set to 1024
+    ; We want frequency of interrupts to be set to 1 Hz
+    ; OCR1A = (frequency of 328P / pre-divider / frequency of interrupts) - 1
     ; OCR1A = (16000000 / 1024 / 1) - 1
     ; OCR1A = 15624
-    ; 16bitovou hodnotu je treba nastavit do dvou registru OCR1AH:OCR1AL
+    ; We need to set 16-bit value to both registers OCR1AH:OCR1AL
     ; 15624 = 61 * 256 + 8
     ldi r16, 61
     sts OCR1AH, r16
     ldi r16, 8
     sts OCR1AL, r16
 
-    ; Zakazani preruseni od tlacitek
+    ; Forbidding interrupts from buttons
     clr r16
     out EIMSK, r16
 
-    sei	; Globalni povoleni preruseni
+    sei	; Global allowment of interrupts
     pop r16
     ret
 
 interrupt:
-    ; Uklid registru a SREG
+    ; Clearing R16 and SREG
     push r16
     in r16, SREG
     push r16
 
-    ; Nastav flag
+    ; Set the flag
     ldi r16, 1
     sts flag, r16
 
-    ; Obnoveni SREG a registru
+    ; Restoring R16 and SREG
     pop r16
     out SREG, r16
     pop r16
-    reti    ; Navrat z kodu preruseni
+    reti    ; Returning from interrupt's code

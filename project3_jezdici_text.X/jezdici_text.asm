@@ -1,47 +1,44 @@
-.org 0x1000 ; Nacitani "printlib.inc" mimo dseg a cseg
+.org 0x1000 ; Including "printlib.inc" outside of dseg a cseg
     .include "printlib.inc"
     
-.dseg	    ; Prepnuti do pameti dat
+.dseg	    ; Switching to data memory
 .org 0x100
-    str_copy: .byte 35 + 32 ; Rezervovani mista pro kopirovani "str"
+    str_copy: .byte 35 + 32 ; Reserving space to copy "str"
  
-.cseg	    ; Prepnuti do pameti programu
-; Zacatek programu - po resetu
+.cseg	    ; Switching to program memory
 .org 0
     jmp start
 
-; Zacatek programu - hlavni program
 .org 0x100
-str: .db "SOME REALLY COOL TEXT SLIDING HERE                                ", 0    ; Retezec zakonceny nulou
+str: .db "SOME REALLY COOL TEXT SLIDING HERE                                ", 0    ; String ended with '0'
 
 start:
     ldi r16, high(str_copy * 2) - low(str_copy * 2)
     
-    ; Nastaveni Z jako pointeru na str
+    ; Setting Z as pointer to str
     ldi r30, low(str * 2)
     ldi r31, high(str * 2)
     
-    ; Nastaveni X jako pointeru na str_copy
+    ; Setting X as pointer to str_copy
     ldi r26, low(str_copy)
     ldi r27, high(str_copy)
     
     copying:
 	lpm r16, Z+
 	st X+, r16
-	cpi r16, 0   ; Porovnani r0 s 0: neni to "copy immediate", ale "compare immediate" :)
+	cpi r16, 0   ; Comparing r0 with 0
 	brne copying
 	
-    ; Cisteni registru Z - neni to potreba, ale nechci mit registry
-    ; oznaceny barevne v I/O memory
+    ; Clearing register Z for better debugging
     clr r30
     clr r31
     
-    ; X = str_copy
+    ; X = &str_copy[0]
     ldi r26, low(str_copy)
     ldi r27, high(str_copy)
     
     call init_disp
-    ldi r18, 1	    ; Pocet vypsanych pismen na displeji
+    ldi r18, 1	    ; Amount of letters written on display
     clr r19	    ; Current position at str_copy
     printing:
 	cpi r19, 35 + 32    ; sizeof(str_copy)
@@ -55,10 +52,10 @@ start:
 		inc r26
 		dec r20
 		brne shift_X
-	    clr r20	; i = 0, taky pozice pro vypis pismena
+	    clr r20	; i = 0, also a position to output the ltter
 	one_iteration:
 	    cp r20, r18
-	    breq increment_r18	; Nejsem si jisty, jestli r18 = 32 => skok na increment_r17
+	    breq increment_r18	; We're not sure, if r18 = 32 => jump to increment_r17
 	    
 	    ld r16, X+	; r16 = str_copy[X++]
 	    cpi r16, 0
@@ -79,7 +76,7 @@ start:
 	    cpi r18, 32
 	    breq waiting_loop
 	    inc r18
-	waiting_loop:	; Skoro sekunda
+	waiting_loop:	; Almost a second
 	    ldi r22, 15
 	    wait3: ldi r23, 255
 	    wait2: ldi r24, 255
@@ -94,7 +91,7 @@ start:
 	    cpi r18, 32
 	    brne printing
 	    inc r19
-	    jmp printing    ; Vsetko je hotovy - delame celej cylkus znovu
+	    jmp printing    ; All is done - doing again and again
 
 reset_current_position:
     ldi r19, 0

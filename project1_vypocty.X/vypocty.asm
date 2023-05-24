@@ -1,9 +1,9 @@
-; Zacatek programu - po resetu
-.org 0 ; Zpracování kódu po resetu za?ízení za?íná v?dy na adrese 0
+; Program always starts after reset ...
+.org 0 ; ... at 0x00
 jmp start
 
-; Zacatek programu - hlavni program
-.org 0x100 ; Na adrese 256 (0x100 ?estnáctkov?) za?íná program.
+; Program start - main ...
+.org 0x100 ; ... is at 0x100
 start:
 
     ldi r16, 5
@@ -12,36 +12,36 @@ start:
     
     ; 4 * R16
     lsl r16
-    brvs fucked	; We're screwed
+    brvs overfw     ; We're screwed
     lsl r16
-    brvs fucked
+    brvs overfw
     
     ; R19 - tmp
     mov r19, r17
     lsl r17	    ; 2 * R17
-    brvs fucked
+    brvs overfw
     add r17, r19    ; 2 * R17 + R17 = 3 * R17
-    brvs fucked
-    ldi r19, 0x00   ; RESET r19
+    brvs overfw
+    clr r19         ; Clear tmp (reset r19 to 0)
     
     mov r20, r16    ; R20 = 4 * R16
     add r20, r17    ; R20 = 4 * R16 + 3 * R17
-    brvs fucked
+    brvs overfw
     sub r20, r18    ; R20 = 4 * R16 + 3 * R17 - R18
-    brvs fucked	    ; Got overflow (e.g. - sub + = +)
+    brvs overfw	    ; Got overflow (e.g. - sub + = +)
     
     asr r20 ; R20 /= 2
-    brcs fucked	; Aritmetický posuv nastavuje carry v p?ípad? ZP
+    brcs overfw	; Arithmetic shift sets carry in case of losing accuracy
     asr r20 ; R20 /= 4
-    brcs fucked
+    brcs overfw
     asr r20 ; R20 /= 8
-    brcs fucked
+    brcs overfw
     
-    jmp end ; Dobrý - zastavíme program
+    jmp end ; All good - finish the program
     
-    fucked:
+    overfw:
 	SEV
-	ldi r25, 1  ; Signál
-	jmp fucked  ; Dobrý v?etko neni - ale stále program ukon?íme
+	ldi r25, 1  ; Signal
+	jmp overfw
 
-end: jmp end ; Zastavime program - nekonecna smycka
+end: jmp end ; Finishing the program - endless loop

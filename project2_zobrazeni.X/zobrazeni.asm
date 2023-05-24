@@ -1,28 +1,27 @@
-; Podprogramy pro praci s displejem
+; Headers to work with the display
 .org 0x1000 ; <1>
 .include "printlib.inc"
 
-; Zacatek programu - po resetu
-.org 0 ; Zpracovani kodu po resetu zarizeni zacina vzdy na adrese 0
+.org 0
     jmp start
 
-; Zacatek programu - hlavni program
-.org 0x100 ; Na adrese 256 (0x100 sestnactkove) zacina program.
+.org 0x100
 start:
     call init_disp
     ldi r18, 0x75
     
     mov r19, r18    ; r19 = 0x5A
-    ldi r20, 4	    ; Jako i = 4
+    ldi r20, 4	    ; i = 4
     get_first_character:
-	lsr r19	    ; 0x0 - 0xff => unsigned => budeme vyuzivat lsl a lsr resp.
+	lsr r19	    ; 0x0 - 0xff => unsigned => we'll use logic shifts, not arith.
 	dec r20
 	brne get_first_character
 
-    ; Vypis prvniho znaku
+    ; Outputting first character
+    ; If r19 >= 10
     cpi r19, 10	; Thanks to Stack Overflow
-    brcs inject_first_digit  ; To bude carry, trust me
-    ; Else (to muzes vnimat jako "inject_first_letter")
+    brcs inject_first_digit
+    ; Else ("inject_first_letter")
     ldi r16, 65	; 'A'
     subi r19, 0x0A
     add r16, r19
@@ -35,10 +34,9 @@ start:
 	call show_char
 	
     ; Getting rid of first character
-    ldi r19, 4	    ; Jako i = 4
-    ; Ty vsetky cykly psat fakt nemusim, ale kod je tak prehlednejsi
+    ldi r19, 4
     shift_to_left_four_times:
-	lsl r18	    ; 0x0 - 0xff => unsigned => budeme vyuzivat lsl a lsr resp.
+	lsl r18
 	dec r19
 	brne shift_to_left_four_times
     ldi r19, 4
@@ -47,7 +45,7 @@ start:
 	dec r19
 	brne shift_to_right_four_times
 
-    ; Vypis druheho znaku
+    ; Outputting the second character
     cpi r18, 10
     brcs inject_second_digit
     ldi r16, 65	; 'A'
@@ -61,6 +59,6 @@ start:
 	ldi r17, 1
 	call show_char
 
-    jmp end ; Vsetko asi bylo dobry
+    jmp end
 
-end: jmp end ; Zastavime program - nekonecna smycka
+end: jmp end
