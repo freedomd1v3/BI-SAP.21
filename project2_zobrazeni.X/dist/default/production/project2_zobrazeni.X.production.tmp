@@ -1,0 +1,50 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>X:\BI-SAP_AVR\project2_zobrazeni.X</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files/Microchip/MPLABX/v6.00/packs/Microchip/ATmega_DFP/2.4.131/avrasm/inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\AVR Tools\AvrAssembler2\Appnotes</DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>zobrazeni.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files/Microchip/MPLABX/v6.00/packs/Microchip/ATmega_DFP/2.4.131/avrasm/inc\m328Pdef.inc</FILE>
+  <FILE>printlib.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>dist/default/production/project2_zobrazeni.X.production.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>dist/default/production/project2_zobrazeni.X.production.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>dist/default/production/project2_zobrazeni.X.production.map</FILE>
+  <FILE>dist/default/production/project2_zobrazeni.X.production.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <init_disp><FILE>printlib.inc</FILE><LINE>17</LINE></init_disp>
+  <lcd_delay_us><FILE>printlib.inc</FILE><LINE>281</LINE></lcd_delay_us>
+  <lcd_clock_cmd><FILE>printlib.inc</FILE><LINE>164</LINE></lcd_clock_cmd>
+  <lcd_send_cmd><FILE>printlib.inc</FILE><LINE>179</LINE></lcd_send_cmd>
+  <lcd_clear><FILE>printlib.inc</FILE><LINE>254</LINE></lcd_clear>
+  <show_char><FILE>printlib.inc</FILE><LINE>119</LINE></show_char>
+  <lcd_set_cursor><FILE>printlib.inc</FILE><LINE>128</LINE></lcd_set_cursor>
+  <lcd_show_char><FILE>printlib.inc</FILE><LINE>249</LINE></lcd_show_char>
+  <lcd_set_ddram_addr><FILE>printlib.inc</FILE><LINE>152</LINE></lcd_set_ddram_addr>
+  <lcd_set_cgram_addr><FILE>printlib.inc</FILE><LINE>136</LINE></lcd_set_cgram_addr>
+  <lcd_send_data><FILE>printlib.inc</FILE><LINE>214</LINE></lcd_send_data>
+  <lcd_light_on><FILE>printlib.inc</FILE><LINE>271</LINE></lcd_light_on>
+  <lcd_light_off><FILE>printlib.inc</FILE><LINE>276</LINE></lcd_light_off>
+  <lcd_delay_us_l0><FILE>printlib.inc</FILE><LINE>283</LINE></lcd_delay_us_l0>
+  <lcd_delay_us_l1><FILE>printlib.inc</FILE><LINE>285</LINE></lcd_delay_us_l1>
+  <start><FILE>zobrazeni.asm</FILE><LINE>11</LINE></start>
+  <get_first_character><FILE>zobrazeni.asm</FILE><LINE>17</LINE></get_first_character>
+  <inject_first_digit><FILE>zobrazeni.asm</FILE><LINE>30</LINE></inject_first_digit>
+  <print_first_character><FILE>zobrazeni.asm</FILE><LINE>33</LINE></print_first_character>
+  <shift_to_left_four_times><FILE>zobrazeni.asm</FILE><LINE>40</LINE></shift_to_left_four_times>
+  <shift_to_right_four_times><FILE>zobrazeni.asm</FILE><LINE>45</LINE></shift_to_right_four_times>
+  <inject_second_digit><FILE>zobrazeni.asm</FILE><LINE>57</LINE></inject_second_digit>
+  <print_second_character><FILE>zobrazeni.asm</FILE><LINE>60</LINE></print_second_character>
+  <end><FILE>zobrazeni.asm</FILE><LINE>66</LINE></end>
+ </LABELS>
+</ASSEMBLER_INFO>
