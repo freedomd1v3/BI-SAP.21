@@ -1,4 +1,4 @@
-# Task 2 (Printing 8-bit hexadecimal numbers to display)
+# Task 4 (Timer)
 
 ![Assignment](assignment.png)  
 ![Results](results.png)
